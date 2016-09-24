@@ -34,6 +34,7 @@ public:
     friend std::ostream& operator << <T>(std::ostream&,const MyVector<T>&);
     friend std::istream& operator >> <T>(std::istream& ,MyVector<T>&);
     MyVector<T>& operator= (const MyVector<T>&);
+    ~MyVector();
 };
 
 template<typename T>
@@ -216,6 +217,13 @@ MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
 
    return *this;
 }
+
+template<typename T>
+MyVector<T>::~MyVector()
+{
+    delete [] element;
+}
+
 
 
 #endif // MYVECTOR
