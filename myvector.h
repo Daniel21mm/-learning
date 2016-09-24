@@ -223,7 +223,5 @@ MyVector<T>::~MyVector()
     delete [] element;
 }
 
-
-
 #endif // MYVECTOR
 
