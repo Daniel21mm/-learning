@@ -1,7 +1,6 @@
 #ifndef MYVECTOR
 #define MYVECTOR
 #include <iostream>
-#include <stdexcept>
 
 template<typename T>
 class MyVector;
