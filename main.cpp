@@ -5,6 +5,7 @@
 int main()
 {
     MyVector <int> t(3);
+
     std::cout << "введите 3 элемента вектора:" << std::endl;
      std::cin >> t;
      std::cout << "полученный вектор" << std::endl;
@@ -49,6 +50,7 @@ std::cout << "вектора v и t полсе присваивания (t=v)" <
 std::cout << v << std::endl;
 std::cout <<t << std::endl;
     std::cout << "Hello World!" << std::endl;
+
     return 0;
 }
 

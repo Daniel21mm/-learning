@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include  <exception>
 
+#include <iostream>
+
 
 template<typename T>
 class MyVector;
@@ -68,14 +70,15 @@ MyVector<T>::MyVector(int _size) throw (std::bad_alloc)
         throw std::bad_alloc(b);
 
     }
-    for(int i(0);i<_size;i++)
-    {
-        element[i]=0;
-    }
+
+    T& operator [](int);
+    friend std::ostream& operator << <T>(std::ostream&,const MyVector<T>&);
+    friend std::istream& operator >> <T>(std::istream& ,MyVector<T>&);
+    MyVector<T>& operator= (const MyVector<T>&);
+    ~MyVector();
+};
 
 
-
-}
 
 template<typename T>
 MyVector<T>::MyVector(const MyVector<T> &v) throw (std::bad_alloc)
@@ -89,10 +92,7 @@ MyVector<T>::MyVector(const MyVector<T> &v) throw (std::bad_alloc)
     {
         throw std::bad_alloc(b);
     }
-    for(int i(0);i<_size;i++)
-    {
-        element[i]=v.element[i];
-    }
+
 }
 
 template<typename T>
@@ -207,12 +207,14 @@ void MyVector<T>::sorting()
             element[i]=element[min];
             element[min]=tmp;
             //выносить в вункцию или использовать арифметический метод мне лень)
+
         }
     }
 }
 
 template<typename T>
 T& MyVector<T>::operator [](int index) throw (std::out_of_range)
+
 {
     if(index<_size)
     {
@@ -304,9 +306,17 @@ MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
     element=v.element;
     _size=v._size;
 
+
     return *this;
 }
 
+
+
+template<typename T>
+MyVector<T>::~MyVector()
+{
+    delete [] element;
+}
 
 
 #endif // MYVECTOR
