@@ -6,5 +6,6 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 HEADERS += \
-    myvector.h
+    myvector.h \
+    myexcept.h
 

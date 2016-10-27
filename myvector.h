@@ -1,8 +1,7 @@
 #ifndef MYVECTOR
 #define MYVECTOR
 
-#include <stdexcept>
-#include  <exception>
+#include "myexcept.h"
 
 #include <iostream>
 
@@ -20,13 +19,14 @@ template<typename T>
 class MyVector
 {
     T* element;
+    int _end;
     int _size;
 public:
-    MyVector() throw (std::bad_alloc);
-    MyVector(int)throw (std::bad_alloc);
-    MyVector(const MyVector<T>&)throw (std::bad_alloc);
+    MyVector() throw (MyExcept);
+    MyVector(int)throw (MyExcept);
+    MyVector(const MyVector<T>&)throw (MyExcept);
     int size();
-    T& at(int) throw (std::out_of_range);
+    T& at(int) throw (MyExcept);
     T& front();
     void push_front(T);
     void pop_front();
@@ -34,63 +34,65 @@ public:
     void push_back(T);
     void pop_back();
     void sorting(); // сортировка выбором
-    T& operator [](int)throw (std::out_of_range);
+    T& operator [](int)throw (MyExcept);
     MyVector<T>& operator+ (MyVector<T>& v);
     MyVector<T>& operator- (MyVector<T>& v);
-    friend std::ostream& operator << <T>(std::ostream&,const MyVector<T>&);
-    friend std::istream& operator >> <T>(std::istream& ,MyVector<T>&);
-    MyVector<T>& operator= (const MyVector<T>&);
-};
-
-template<typename T>
-MyVector<T>::MyVector()throw (std::bad_alloc)
-    :_size(0)
-{
-    try
-    {
-       element = new T;
-    }
-    catch(std::bad_alloc &b)
-    {
-        throw std::bad_alloc(b);
-    }
-
-}
-
-template<typename T>
-MyVector<T>::MyVector(int _size) throw (std::bad_alloc)
-{
-    this->_size=_size;
-    try
-    {
-     element = new T[_size];
-    }
-    catch(std::bad_alloc &b)
-    {
-        throw std::bad_alloc(b);
-
-    }
-
-    T& operator [](int);
     friend std::ostream& operator << <T>(std::ostream&,const MyVector<T>&);
     friend std::istream& operator >> <T>(std::istream& ,MyVector<T>&);
     MyVector<T>& operator= (const MyVector<T>&);
     ~MyVector();
 };
 
-
-
 template<typename T>
-MyVector<T>::MyVector(const MyVector<T> &v) throw (std::bad_alloc)
-    :_size(v._size)
+MyVector<T>::MyVector()throw (MyExcept) //bad_alloc
+    :_end(0),_size(10)
 {
     try
     {
-     element= new T[v._size];
+        element = new T[_size];
+    }
+    catch(std::bad_alloc &ba)
+    {
+        throw MyExcept("bad alloc");
+    }
+
+}
+
+template<typename T>
+MyVector<T>::MyVector(int _size) throw (MyExcept) //(std::bad_alloc)
+{
+    this->_end=_size;
+    this->_size=_size*2;
+    try
+    {
+        element = new T[_size];
+    }
+    catch(std::bad_alloc &ba)
+    {
+        throw MyExcept("bad alloc");
+
+    }
+
+
+}
+
+
+
+template<typename T>
+MyVector<T>::MyVector(const MyVector<T> &v) throw (MyExcept)// (std::bad_alloc)
+    :_size(v._size),_end(v._end)
+{
+    try
+    {
+        element= new T[_size];
+        for(int i(0);i<_end;i++)
+        {
+            element[i]=v.element[i];
+        }
     }
     catch(std::bad_alloc &b)
     {
-        throw std::bad_alloc(b);
+        throw MyExcept("bad alloc");
     }
 
 }
@@ -98,20 +100,20 @@ MyVector<T>::MyVector(const MyVector<T> &v) throw (std::bad_alloc)
 template<typename T>
 int MyVector<T>::size()
 {
-    return _size;
+    return _end;
 }
 
 template<typename T>
-T& MyVector<T>::at(int index) throw (std::out_of_range)
+T& MyVector<T>::at(int index)  throw (MyExcept)//(std::out_of_range)
 {
-    if(index<_size)
+    if(index<_end && index>-1)
     {
         return element[index];
     }
     else
     {
 
-        throw std::out_of_range("ошибка диапозона/Range error in my vector");
+        throw MyExcept("out_of_range");
 
     }
 
@@ -126,74 +128,87 @@ T& MyVector<T>::front()
 template<typename T>
 void MyVector<T>::push_front(T t)
 {
-    MyVector<T> v(_size+1);
-    v.element[0]=t;
-    for(int i(1);i<_size+1;i++)
+    _size++;
+    _end++;
+    T* ptr= new T[_size];
+    ptr[0]=t;
+    for(int i(0);i<_end;i++)
     {
-        v.element[i]=element[i-1];
+    ptr[i+1]=element[i];
     }
-
-    delete [] element;
-    element= v.element;
-    _size=v._size;
+    element=ptr;
+    ptr=nullptr;
 }
 
 template<typename T>
 void MyVector<T>::pop_front()
 {
-    MyVector<T> v(_size-1);
-    for(int i(0);i<_size-1;i++)
+    if(_end!=0)
     {
-        v.element[i]=element[i+1];
+        _end--;
+        T* ptr =new T[_size];
+        for(int i(0);i<_end;i++)
+        {
+            ptr[i]=element[i+1];
+        }
+        element=ptr;
+        ptr=nullptr;
     }
-    delete [ ] element;
-    element =v.element;
-    _size = v._size;
+    else
+    {
+        throw MyExcept("vector empty");
+    }
+
 }
 
 template<typename T>
 T& MyVector<T>::back()
 {
-    return  element[_size-1];
+    return  element[_end-1];
 }
 
 template<typename T>
 void MyVector<T>::push_back(T t)
 {
-    MyVector v(_size+1);
-    v.element[_size]=t;
-
-    for(int i(0);i<_size;i++)
+    if(_end!=_size)
     {
-        v.element[i]=element[i];
+        element[_end]=t;
+        _end++;
+    }
+    else
+    {
+        _end++;
+        _size*=2;
+        T* ptr =new T[_size];
+        element=ptr;
+        element[_end]=t;
+        ptr=nullptr;
     }
 
-    delete [] element;
-    element= v.element;
-    _size=v._size;
 }
 
 template<typename T>
 void MyVector<T>::pop_back()
 {
-    MyVector<T> v(_size-1);
-    for(int i(0);i<_size-1;i++)
+
+    if(_end!=0)
     {
-        v.element[i]=element[i];
+        _end--;
     }
-    delete [] element;
-    element =v.element;
-    _size = v._size;
+    else
+    {
+        throw MyExcept("vector emtpy");
+    }
 }
 
 template<typename T>
 void MyVector<T>::sorting()
 {
     int min;
-    for(int i(0);i<_size-1;i++)
+    for(int i(0);i<_end-1;i++)
     {
         min=i;
-        for(int j(min+1);j<_size;j++)
+        for(int j(min+1);j<_end;j++)
         {
             if(element[min]>element[j])
             {
@@ -213,16 +228,17 @@ void MyVector<T>::sorting()
 }
 
 template<typename T>
-T& MyVector<T>::operator [](int index) throw (std::out_of_range)
+T& MyVector<T>::operator [](int index) throw (MyExcept)//(std::out_of_range)
 
 {
-    if(index<_size)
+    if(index<_end && index>-1)
     {
         return element[index];
     }
     else
     {
-        throw std::out_of_range("ошибка диапозона/Range error in my vector");
+
+        throw MyExcept("ошибка диапозона/Range error in my vector");
 
     }
 }
@@ -230,20 +246,20 @@ T& MyVector<T>::operator [](int index) throw (std::out_of_range)
 template<typename T>
 MyVector<T> &MyVector<T>::operator+(MyVector<T> &v)
 {
-    if(_size>=v._size)
+    if(_end>=v._end)
     {
-        for(int i(0);i<v._size;i++)
+        for(int i(0);i<v._end;i++)
         {
             element[i]+=v.element[i];
         }
     }
     else
     {
-        for(int i(0);i<_size;i++)
+        for(int i(0);i<_end;i++)
         {
             element[i]+=v.element[i];
         }
-        for(int i(_size);i<(v._size);i++)
+        for(int i(_end);i<(v._end);i++)
         {
             push_back(v.element[i]);
         }
@@ -255,20 +271,20 @@ MyVector<T> &MyVector<T>::operator+(MyVector<T> &v)
 template<typename T>
 MyVector<T> &MyVector<T>::operator-(MyVector<T> &v)
 {
-    if(_size>=v._size)
+    if(_end>=v._end)
     {
-        for(int i(0);i<v._size;i++)
+        for(int i(0);i<v._end;i++)
         {
             element[i]-=v.element[i];
         }
     }
     else
     {
-        for(int i(0);i<_size;i++)
+        for(int i(0);i<_end;i++)
         {
             element[i]-=v.element[i];
         }
-        for(int i(_size);i<(v._size);i++)
+        for(int i(_end);i<(v._end);i++)
         {
             push_back(-v.element[i]);
         }
@@ -282,7 +298,7 @@ template<class T>
 std::ostream& operator <<(std::ostream& os,const MyVector<T>& v)
 {
 
-    for(int i(0);i<v._size;i++)
+    for(int i(0);i<v._end;i++)
     {
         os << v.element[i] << " ";
     }
@@ -292,7 +308,7 @@ std::ostream& operator <<(std::ostream& os,const MyVector<T>& v)
 template<class T>
 std::istream& operator >> (std::istream& is ,MyVector<T>& v)
 {
-    for(int i(0);i<v._size;i++)
+    for(int i(0);i<v._end;i++)
     {
         is >> v.element[i];
     }
@@ -303,11 +319,23 @@ template<typename T>
 MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
 {
 
-    element=v.element;
+    _end=v._end;
     _size=v._size;
+    try
+    {
+        element= new T[_size];
+        for(int i(0);i<_end;i++)
+        {
+            element[i]=v.element[i];
+        }
+            return *this;
+    }
+    catch(std::bad_alloc &b)
+    {
+        throw MyExcept("bad alloc");
+    }
 
 
-    return *this;
 }
 
 
@@ -315,7 +343,8 @@ MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
 template<typename T>
 MyVector<T>::~MyVector()
 {
-    delete [] element;
+    delete[] element;
+
 }
 
 
