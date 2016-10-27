@@ -65,6 +65,7 @@ MyVector<T>::MyVector(int _size) throw (MyExcept) //(std::bad_alloc)
     this->_size=_size*2;
     try
     {
+
         element = new T[_size];
     }
     catch(std::bad_alloc &ba)
@@ -138,6 +139,7 @@ void MyVector<T>::push_front(T t)
     }
     element=ptr;
     ptr=nullptr;
+    delete [] ptr;
 }
 
 template<typename T>
@@ -153,6 +155,7 @@ void MyVector<T>::pop_front()
         }
         element=ptr;
         ptr=nullptr;
+        delete[] ptr;
     }
     else
     {
@@ -183,6 +186,7 @@ void MyVector<T>::push_back(T t)
         element=ptr;
         element[_end]=t;
         ptr=nullptr;
+        delete[] ptr;
     }
 
 }
