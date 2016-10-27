@@ -331,11 +331,14 @@ MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
     _size=v._size;
     try
     {
-        element= new T[_size];
+        T* tmp= new T[_size];
+        delete [] element;
         for(int i(0);i<_end;i++)
         {
-            element[i]=v.element[i];
+            tmp[i]=v.element[i];
         }
+        element = tmp;
+       // delete [] tmp;
         return *this;
     }
     catch(std::bad_alloc &b)
