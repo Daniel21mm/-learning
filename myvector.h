@@ -135,11 +135,12 @@ void MyVector<T>::push_front(T t)
     ptr[0]=t;
     for(int i(0);i<_end;i++)
     {
-    ptr[i+1]=element[i];
+        ptr[i+1]=element[i];
     }
+    delete [] element;
     element=ptr;
     ptr=nullptr;
-    delete [] ptr;
+
 }
 
 template<typename T>
@@ -153,9 +154,10 @@ void MyVector<T>::pop_front()
         {
             ptr[i]=element[i+1];
         }
+        delete [] element;
         element=ptr;
         ptr=nullptr;
-        delete[] ptr;
+
     }
     else
     {
@@ -183,10 +185,12 @@ void MyVector<T>::push_back(T t)
         _end++;
         _size*=2;
         T* ptr =new T[_size];
+        delete[] element;
         element=ptr;
         element[_end]=t;
+
         ptr=nullptr;
-        delete[] ptr;
+
     }
 
 }
@@ -332,7 +336,7 @@ MyVector<T>& MyVector<T>::operator =(const  MyVector<T>& v)
         {
             element[i]=v.element[i];
         }
-            return *this;
+        return *this;
     }
     catch(std::bad_alloc &b)
     {
